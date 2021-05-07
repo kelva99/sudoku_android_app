@@ -1,10 +1,14 @@
 package com.minigame.sudoku;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -92,4 +96,34 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(getApplicationContext(), "DEMO NOT IMPLEMENTED", Toast.LENGTH_SHORT).show();
         }
     };
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        Intent intent = null;
+        switch (item.getItemId()) {
+            case R.id.menuRestart:
+                Toast.makeText(getApplicationContext(), "RESTART NOT IMPLEMENTED", Toast.LENGTH_SHORT).show();
+                break;
+            case R.id.menuNewGame:
+                Toast.makeText(getApplicationContext(), "NEW GAME NOT IMPLEMENTED", Toast.LENGTH_SHORT).show();
+                break;
+
+            case R.id.menuStatistics:
+                Toast.makeText(getApplicationContext(), "STAT NOT IMPLEMENTED", Toast.LENGTH_SHORT).show();
+                break;
+
+            case R.id.menuSettings:
+                Toast.makeText(getApplicationContext(), "SETTINGS NOT IMPLEMENTED", Toast.LENGTH_SHORT).show();
+                break;
+            default:
+                break;
+        }
+        return super.onOptionsItemSelected(item);
+    }
 }

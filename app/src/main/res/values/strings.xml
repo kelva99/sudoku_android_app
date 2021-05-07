@@ -1,3 +1,13 @@
 <resources>
     <string name="app_name">Sudoku</string>
+
+    <string name="note">Note</string>
+    <string name="erase">Erase</string>
+    <string name="undo">Undo</string>
+    <string name="demo">Solver demo</string>
+
+    <string name="restart">Restart</string>
+    <string name="newgame">New Game</string>
+    <string name="statistics">Statistics</string>
+    <string name="settings">Settings</string>
 </resources>

@@ -23,8 +23,9 @@ class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private int selectedRow, selectedCol;
     private Drawable cell_background;
 
-    private int selectedCellColor;
-    private int incorrectNumberColor;
+    private int clr_selectedCell;
+    private int clr_incorrectNumber;
+    private int clr_cannotEdit;
     public static final int edgeSize = 9;
     public BoardAdapter(Context context, List<List<Integer>> gameboard) {
         super();
@@ -53,10 +54,11 @@ class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             boardViews.add(l);
         }
 
-        selectedCellColor = context.getColor(R.color.colorPrimaryLight);
-        incorrectNumberColor = context.getColor(R.color.red);
+        clr_selectedCell = context.getColor(R.color.colorPrimaryLight);
+        clr_incorrectNumber = context.getColor(R.color.red);
+        clr_cannotEdit = context.getColor(R.color.grey);
         selectedRow = -1;
-        selectedCellColor = -1;
+        clr_selectedCell = -1;
     }
 
     public void FillNumber(boolean isNote, int whichNumber){
@@ -81,7 +83,7 @@ class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             view.SetNumber(whichNumber);
         }
         if (!ValidEntry()){
-            view.selectedNumber.setTextColor(incorrectNumberColor);
+            view.selectedNumber.setTextColor(clr_incorrectNumber);
         }
     }
 
@@ -100,6 +102,7 @@ class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     }
 
     public boolean ValidEntry() {
+
         return true;
     }
 
@@ -150,7 +153,7 @@ class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 boardViews.get(selectedRow).get(selectedCol).shell.setBackgroundColor(Color.TRANSPARENT);
                 boardViews.get(selectedRow).get(selectedCol).shell.setBackground(cell_background);
             }
-            shell.setBackgroundColor(selectedCellColor);
+            shell.setBackgroundColor(clr_selectedCell);
             selectedRow = row;
             selectedCol = column;
             }
@@ -180,6 +183,7 @@ class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         vh.SetNumber(val);
         if (val >= 1 && val <= 9){
             vh.canUpdate = false;
+            vh.selectedNumber.setTextColor(clr_cannotEdit);
         }
         vh.row = position/edgeSize;
         vh.column = position%edgeSize;

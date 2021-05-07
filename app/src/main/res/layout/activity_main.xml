@@ -41,28 +41,28 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Note" />
+            android:text="@string/note" />
 
         <Button
             android:id="@+id/btnErase"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Erase" />
+            android:text="@string/erase" />
 
         <Button
             android:id="@+id/btnUndo"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Undo" />
+            android:text="@string/undo" />
 
         <Button
             android:id="@+id/btnAIDemo"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Solver Demo"
+            android:text="@string/demo"
             app:layout_constraintDimensionRatio="1" />
     </LinearLayout>
 
