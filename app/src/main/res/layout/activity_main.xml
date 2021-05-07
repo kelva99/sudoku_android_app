@@ -24,8 +24,7 @@
             android:id="@+id/rvGameBoard"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:padding="10dp" />
+            android:layout_centerInParent="true" />
 
     </RelativeLayout>
 
@@ -42,24 +41,29 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Note"
-            app:layout_constraintDimensionRatio="1:1" />
+            android:text="Note" />
 
         <Button
             android:id="@+id/btnErase"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Erase"
-            app:layout_constraintDimensionRatio="1:1" />
+            android:text="Erase" />
 
         <Button
             android:id="@+id/btnUndo"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Undo"
-            app:layout_constraintDimensionRatio="1:1" />
+            android:text="Undo" />
+
+        <Button
+            android:id="@+id/btnAIDemo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Solver Demo"
+            app:layout_constraintDimensionRatio="1" />
     </LinearLayout>
 
     <LinearLayout

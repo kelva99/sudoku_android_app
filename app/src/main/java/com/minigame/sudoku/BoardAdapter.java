@@ -1,13 +1,11 @@
 package com.minigame.sudoku;
 
 import android.content.Context;
-import android.content.res.ColorStateList;
 import android.graphics.Color;
-import android.util.Log;
+import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -23,13 +21,16 @@ class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private List<List<ViewHolder>> boardViews;
     private LayoutInflater layoutInflater;
     private int selectedRow, selectedCol;
+    private Drawable cell_background;
 
-    private int selectedColor;
+    private int selectedCellColor;
+    private int incorrectNumberColor;
     public static final int edgeSize = 9;
     public BoardAdapter(Context context, List<List<Integer>> gameboard) {
         super();
         this.layoutInflater = LayoutInflater.from(context);
         this.board = gameboard;
+        this.cell_background = context.getDrawable(R.drawable.cell_background);
         // debug
         if (board == null){
             board = new ArrayList<List<Integer>>();
@@ -52,7 +53,71 @@ class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             boardViews.add(l);
         }
 
-        selectedColor = context.getColor(R.color.colorPrimaryLight);
+        selectedCellColor = context.getColor(R.color.colorPrimaryLight);
+        incorrectNumberColor = context.getColor(R.color.red);
+        selectedRow = -1;
+        selectedCellColor = -1;
+    }
+
+    public void FillNumber(boolean isNote, int whichNumber){
+        if (selectedRow < 0 || selectedCol < 0){
+            return;
+        }
+        ViewHolder view = boardViews.get(selectedRow).get(selectedCol);
+        if (!view.canUpdate) return;
+        if (isNote){
+            if (whichNumber < 1 || whichNumber > 9){
+                return;
+            }
+            view.SetNumber(0);
+            float alpha = ((int) view.hints[whichNumber- 1].getAlpha()) ^ 1;
+            view.hints[whichNumber- 1].setAlpha(alpha);
+            // Log.d("fill_number", "set text for note");
+        }
+        else {
+            for(int i = 0; i < edgeSize; i++){
+                view.hints[i].setAlpha(0);
+            }
+            view.SetNumber(whichNumber);
+        }
+        if (!ValidEntry()){
+            view.selectedNumber.setTextColor(incorrectNumberColor);
+        }
+    }
+
+    public void ClearNumber(){
+        if (selectedRow < 0 || selectedCol < 0){
+            return;
+        }
+        ViewHolder view = boardViews.get(selectedRow).get(selectedCol);
+        if (!view.canUpdate) return;
+
+        view.SetNumber(0);
+        for(int i = 0; i < edgeSize; i++){
+            view.hints[i].setAlpha(0);
+        }
+        board.get(selectedRow).set(selectedCol, 0);
+    }
+
+    public boolean ValidEntry() {
+        return true;
+    }
+
+    private String GetBoardAsPrettyString(){
+        String s = "";
+        for(int i = 0; i < edgeSize; i++){
+            for(int j = 0; j < edgeSize; j++){
+                s += board.get(i).get(j);
+                if (j == 2 || j == 5){
+                    s += "  ";
+                }
+            }
+            s += "\n";
+            if (i == 2 || i == 5){
+                s += "\n";
+            }
+        }
+        return s;
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
@@ -61,33 +126,42 @@ class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         TextView selectedNumber;
         // TextView row, column;
         int row, column;
-        boolean canUpdate;
+        boolean canUpdate = true;
         TextView hints[];
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             shell = itemView.findViewById(R.id.shell);
-            hints = new TextView[9];
+            hints = new TextView[edgeSize];
             int hints_id[] = new int[]{R.id.hint1, R.id.hint2, R.id.hint3, R.id.hint4, R.id.hint5,
                     R.id.hint6, R.id.hint7, R.id.hint8, R.id.hint9};
-            for(int i = 0; i < 9; i++){
+            for(int i = 0; i < edgeSize; i++){
                 hints[i] = itemView.findViewById(hints_id[i]);
             }
             selectedNumber = itemView.findViewById(R.id.selectedNumber);
-            selectedNumber.setOnClickListener(onclicklistener);
+            selectedNumber.setOnClickListener(selectCellListener);
         }
 
-        private View.OnClickListener onclicklistener = new View.OnClickListener() {
+        private View.OnClickListener selectCellListener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // reset background of previous
+            // reset background of previous
+            if (selectedCol >= 0 && selectedRow >= 0){
                 boardViews.get(selectedRow).get(selectedCol).shell.setBackgroundColor(Color.TRANSPARENT);
-
-                shell.setBackgroundColor(selectedColor);
-                selectedRow = row;
-                selectedCol = column;
+                boardViews.get(selectedRow).get(selectedCol).shell.setBackground(cell_background);
+            }
+            shell.setBackgroundColor(selectedCellColor);
+            selectedRow = row;
+            selectedCol = column;
             }
         };
+
+        public void SetNumber(int num){
+            if (num < 0 || num > 9) return;
+            board.get(row).set(column, num);
+            selectedNumber.setText(num == 0? "" : Integer.toString(num));
+            // Log.d("set number", num + "");
+        }
     }
 
     // inflates the cell layout from xml when needed
@@ -103,8 +177,8 @@ class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         ViewHolder vh = (ViewHolder) holder;
         int val = getItem(position);
+        vh.SetNumber(val);
         if (val >= 1 && val <= 9){
-            vh.selectedNumber.setText(Integer.toString(val));
             vh.canUpdate = false;
         }
         vh.row = position/edgeSize;

@@ -1,0 +1,37 @@
+<svg width="450" height="450" xmlns="http://www.w3.org/2000/svg" style="vector-effect: non-scaling-stroke;" stroke="null">
+ <g stroke="null" id="Layer_1">
+  <title stroke="null">Layer 1</title>
+  <g stroke="null" id="svg_6">
+   <rect stroke="#000" fill="#FFA9A2" x="0.56717" y="301.04677" width="300.59156" height="150.17909" id="svg_9" stroke-width="0"/>
+   <rect stroke="#000" fill="#EEFF9F" x="150.29575" y="149.72997" width="299.45726" height="150.17909" id="svg_8" stroke-width="0"/>
+   <rect stroke="#000" fill="#b7f9ff" x="0" y="-0.44912" width="299.45726" height="150.17909" id="svg_5" stroke-width="0"/>
+   <line stroke="#000" fill="none" x1="0" y1="149.72997" x2="449.1859" y2="149.72997" id="svg_1" stroke-linejoin="undefined" stroke-linecap="undefined"/>
+   <line stroke="#000" fill="none" x1="0" y1="302.18452" x2="449.1859" y2="302.18452" id="svg_2" stroke-linejoin="undefined" stroke-linecap="undefined"/>
+   <line stroke="#000" fill="none" x1="299.45726" y1="-0.44912" x2="301.15873" y2="450.08815" id="svg_3" stroke-linejoin="undefined" stroke-linecap="undefined"/>
+   <line stroke="#000" fill="none" x1="149.72863" y1="-5" x2="149.72863" y2="452.36361" id="svg_4" stroke-linejoin="undefined" stroke-linecap="undefined"/>
+   <text stroke="#000" transform="matrix(4.99095 0 0 5.00597 0 -0.366224)" fill="#000000" stroke-width="0" x="6.93182" y="22.98344" id="svg_10" font-size="24" font-family="monospace" text-anchor="start" xml:space="preserve" font-weight="normal" font-style="normal">S</text>
+   <text stroke="#000" transform="matrix(4.99095 0 0 5.00597 0 -0.366224)" fill="#000000" stroke-width="0" x="37" y="82.98344" id="svg_11" font-size="24" font-family="monospace" text-anchor="start" xml:space="preserve">U</text>
+   <text stroke="#000" transform="matrix(4.99095 0 0 5.00597 0 -0.366224)" fill="#000000" stroke-width="0" x="7" y="83.39253" id="svg_12" font-size="24" font-family="monospace" text-anchor="start" xml:space="preserve">K</text>
+   <text stroke="#000" fill="#000000" stroke-width="0" x="67.21883" y="52.94029" id="svg_13" font-size="24" font-family="monospace" text-anchor="start" xml:space="preserve" transform="matrix(4.29363 2.55213 -2.54448 4.30655 165.982 -157.314)">O</text>
+   <text stroke="#000" transform="matrix(4.99095 0 0 5.00597 0 -0.366224)" fill="#000000" stroke-width="0" x="37" y="52.98344" id="svg_14" font-size="24" font-family="monospace" text-anchor="start" xml:space="preserve">D</text>
+   <text stroke="#000" transform="matrix(4.99095 0 0 5.00597 0 -0.366224)" fill="#000000" stroke-width="0" x="37" y="22.98344" id="svg_15" font-size="24" font-family="monospace" text-anchor="start" xml:space="preserve">U</text>
+   <line stroke="#000" fill="none" x1="451.45453" y1="47.33511" y2="47.33511" id="svg_18" x2="301.7259"/>
+   <line stroke="#000" fill="none" x1="451.45453" y1="97.39481" y2="97.39481" id="svg_20" x2="301.7259"/>
+   <line stroke="#000" fill="none" x1="351.63545" y1="-2.72459" x2="351.63545" y2="147.4545" id="svg_22"/>
+   <line stroke="#000" fill="none" x1="401.54499" y1="-2.72459" x2="401.54499" y2="147.4545" id="svg_23"/>
+   <rect stroke="#000" fill="#ffffff" x="6.47811" y="34.24995" width="5" height="2" id="svg_25" transform="matrix(4.44697 -2.27266 2.26585 4.46035 -75.0245 39.262)"/>
+   <rect stroke="#000" fill="#ffffff" x="18.09359" y="54.0509" width="3" height="3" id="svg_26" transform="matrix(4.74668 1.54693 -1.54229 4.76096 90.4874 -17.0697)"/>
+   <rect stroke="#000" fill="#000000" x="67.63756" y="70.57467" width="15" height="15" id="svg_28" transform="matrix(4.08835 2.87131 -2.86269 4.10065 291.371 -145.442)"/>
+   <rect stroke="#000" fill="#ffffff" x="75.66697" y="66.63349" width="11" height="5.29412" id="svg_29" transform="matrix(4.08835 2.87131 -2.86269 4.10065 271.638 -170.716)"/>
+   <line stroke="#ffffff" fill="none" x1="384.78234" y1="351.60553" x2="341.84193" y2="413.11528" id="svg_30"/>
+   <line stroke="#ffffff" fill="none" x1="406.80123" y1="365.59267" x2="363.86082" y2="427.10242" id="svg_31"/>
+   <rect stroke="#000" fill="url(#svg_27)" x="12.36046" y="36.33818" width="4.77273" height="20" id="svg_24" transform="matrix(4.44697 -2.27266 2.26585 4.46035 -97.0106 58.4222)"/>
+  </g>
+ </g>
+ <defs style="vector-effect: non-scaling-stroke;" stroke="null">
+  <linearGradient style="vector-effect: non-scaling-stroke;" stroke="null" id="svg_27" x1="0" y1="0" x2="1" y2="0">
+   <stop style="vector-effect: non-scaling-stroke;" stroke="null" stop-color="#none" offset="0"/>
+   <stop style="vector-effect: non-scaling-stroke;" stroke="null" stop-color="#NaNNaNNaN" offset="1"/>
+  </linearGradient>
+ </defs>
+</svg>
