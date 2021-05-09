@@ -24,7 +24,9 @@
             android:id="@+id/rvGameBoard"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_centerInParent="true" />
+            android:layout_centerInParent="true" >
+
+        </androidx.recyclerview.widget.RecyclerView>
 
     </RelativeLayout>
 
@@ -34,6 +36,7 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         app:layout_constraintBottom_toTopOf="@+id/llNumbers"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
         <Button
@@ -58,11 +61,11 @@
             android:text="@string/undo" />
 
         <Button
-            android:id="@+id/btnAIDemo"
+            android:id="@+id/btnHint"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="@string/demo"
+            android:text="@string/hint"
             app:layout_constraintDimensionRatio="1" />
     </LinearLayout>
 

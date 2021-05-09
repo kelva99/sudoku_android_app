@@ -7,9 +7,17 @@
         android:id="@+id/menuNewGame"
         android:title="@string/newgame" />
     <item
+        android:id="@+id/menuSolver"
+        android:title="@string/solver" />
+    <item
+        android:id="@+id/menuGenerate"
+        android:title="@string/generate" />
+    <item
         android:id="@+id/menuStatistics"
         android:title="@string/statistics" />
     <item
         android:id="@+id/menuSettings"
         android:title="@string/settings" />
+
+
 </menu>

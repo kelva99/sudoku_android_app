@@ -26,7 +26,7 @@ class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private int clr_selectedCell;
     private int clr_incorrectNumber;
     private int clr_cannotEdit;
-    public static final int edgeSize = 9;
+
     public BoardAdapter(Context context, List<List<Integer>> gameboard) {
         super();
         this.layoutInflater = LayoutInflater.from(context);
@@ -35,20 +35,21 @@ class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         // debug
         if (board == null){
             board = new ArrayList<List<Integer>>();
-            for(int i = 0; i < edgeSize; i++){
+            for(int i = 0; i < Sudoku_data.EDGE_SIZE; i++){
                 List<Integer> l = new ArrayList<Integer>();
-                for(int j = 0; j < edgeSize; j++){
+                for(int j = 0; j < Sudoku_data.EDGE_SIZE; j++){
                     l.add(0);
                 }
                 board.add(l);
             }
         }
 
+
         // create nested list for viewholder
         boardViews = new ArrayList<List<ViewHolder>>();
-        for(int i = 0; i < edgeSize; i++){
+        for(int i = 0; i < Sudoku_data.EDGE_SIZE; i++){
             List<ViewHolder> l = new ArrayList<ViewHolder>();
-            for(int j = 0; j < edgeSize; j++){
+            for(int j = 0; j < Sudoku_data.EDGE_SIZE; j++){
                 l.add(null);
             }
             boardViews.add(l);
@@ -61,6 +62,13 @@ class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         clr_selectedCell = -1;
     }
 
+    public void UpdateBoard(List<List<Integer>> newboard){
+        if (newboard != null){
+            board = newboard;
+            notifyDataSetChanged();
+        }
+    }
+
     public void FillNumber(boolean isNote, int whichNumber){
         if (selectedRow < 0 || selectedCol < 0){
             return;
@@ -68,7 +76,7 @@ class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         ViewHolder view = boardViews.get(selectedRow).get(selectedCol);
         if (!view.canUpdate) return;
         if (isNote){
-            if (whichNumber < 1 || whichNumber > 9){
+            if (whichNumber < 1 || whichNumber > Sudoku_data.EDGE_SIZE){
                 return;
             }
             view.SetNumber(0);
@@ -77,7 +85,7 @@ class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             // Log.d("fill_number", "set text for note");
         }
         else {
-            for(int i = 0; i < edgeSize; i++){
+            for(int i = 0; i < Sudoku_data.EDGE_SIZE; i++){
                 view.hints[i].setAlpha(0);
             }
             view.SetNumber(whichNumber);
@@ -95,7 +103,7 @@ class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         if (!view.canUpdate) return;
 
         view.SetNumber(0);
-        for(int i = 0; i < edgeSize; i++){
+        for(int i = 0; i < Sudoku_data.EDGE_SIZE; i++){
             view.hints[i].setAlpha(0);
         }
         board.get(selectedRow).set(selectedCol, 0);
@@ -108,15 +116,15 @@ class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private String GetBoardAsPrettyString(){
         String s = "";
-        for(int i = 0; i < edgeSize; i++){
-            for(int j = 0; j < edgeSize; j++){
+        for(int i = 0; i < Sudoku_data.EDGE_SIZE; i++){
+            for(int j = 0; j < Sudoku_data.EDGE_SIZE; j++){
                 s += board.get(i).get(j);
-                if (j == 2 || j == 5){
+                if ((j + 1) % Sudoku_data.BOX_SIZE == 0 && (j+1) != Sudoku_data.EDGE_SIZE){
                     s += "  ";
                 }
             }
             s += "\n";
-            if (i == 2 || i == 5){
+            if ((i + 1) % Sudoku_data.BOX_SIZE == 0 && (i+1) != Sudoku_data.EDGE_SIZE){
                 s += "\n";
             }
         }
@@ -135,10 +143,10 @@ class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             shell = itemView.findViewById(R.id.shell);
-            hints = new TextView[edgeSize];
+            hints = new TextView[Sudoku_data.EDGE_SIZE];
             int hints_id[] = new int[]{R.id.hint1, R.id.hint2, R.id.hint3, R.id.hint4, R.id.hint5,
                     R.id.hint6, R.id.hint7, R.id.hint8, R.id.hint9};
-            for(int i = 0; i < edgeSize; i++){
+            for(int i = 0; i < Sudoku_data.EDGE_SIZE; i++){
                 hints[i] = itemView.findViewById(hints_id[i]);
             }
             selectedNumber = itemView.findViewById(R.id.selectedNumber);
@@ -160,7 +168,7 @@ class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         };
 
         public void SetNumber(int num){
-            if (num < 0 || num > 9) return;
+            if (num < 0 || num > Sudoku_data.EDGE_SIZE) return;
             board.get(row).set(column, num);
             selectedNumber.setText(num == 0? "" : Integer.toString(num));
             // Log.d("set number", num + "");
@@ -181,27 +189,27 @@ class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         ViewHolder vh = (ViewHolder) holder;
         int val = getItem(position);
         vh.SetNumber(val);
-        if (val >= 1 && val <= 9){
+        if (val >= 1 && val <= Sudoku_data.EDGE_SIZE){
             vh.canUpdate = false;
             vh.selectedNumber.setTextColor(clr_cannotEdit);
         }
-        vh.row = position/edgeSize;
-        vh.column = position%edgeSize;
+        vh.row = position/Sudoku_data.EDGE_SIZE;
+        vh.column = position%Sudoku_data.EDGE_SIZE;
         boardViews.get(vh.row).set(vh.column, vh);
     }
 
     @Override
     public int getItemCount() {
-        return edgeSize * edgeSize;
+        return Sudoku_data.TOTAL_CELL_COUNT;
     }
 
     // convenience method for getting data at click position
     int getItem(int id) {
-        return board.get((int)id/edgeSize).get(id%edgeSize);
+        return board.get((int)id/Sudoku_data.EDGE_SIZE).get(id%Sudoku_data.EDGE_SIZE);
     }
 
     void setItem(int pos, int i) {
-        board.get((int)pos/edgeSize).set(pos%edgeSize, i);
+        board.get((int)pos/Sudoku_data.EDGE_SIZE).set(pos%Sudoku_data.EDGE_SIZE, i);
     }
 
 }
