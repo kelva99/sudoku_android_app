@@ -4,14 +4,17 @@
     <string name="note">Note</string>
     <string name="erase">Erase</string>
     <string name="undo">Undo</string>
-    <string name="demo">Solver demo</string>
+    <string name="solverdemo">Solver demo</string>
+    <string name="hint">Hint</string>
+    <string name="clear">Clear</string>
 
     <string name="restart">Restart</string>
     <string name="newgame">New Game</string>
     <string name="statistics">Statistics</string>
     <string name="settings">Settings</string>
-    <string name="solver">Solver</string>
-    <string name="hint">Hint</string>
+    <string name="solver">Solve Puzzle</string>
     <string name="generate">Generate with DLX </string>
+    <string name="playground">Playground</string>
+    <string name="demo">Demo</string>
 
 </resources>

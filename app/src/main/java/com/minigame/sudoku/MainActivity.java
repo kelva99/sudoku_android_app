@@ -62,18 +62,21 @@ public class MainActivity extends AppCompatActivity {
         tGenerateNewBoard = Executors.newCachedThreadPool();
         futureTask = null;
         newboard_filled = null;
-
+        Log.d("main", "database");
         database = new DbHelper(this);
+        Log.d("main", "database done");
 
+        board_tofill = SudokuUtils.GetEmptyBoard();
+        board_solution = SudokuUtils.GetEmptyBoard();
 
         RecyclerView recyclerView = findViewById(R.id.rvGameBoard);
-        recyclerView.setLayoutManager(new GridLayoutManager(this, Sudoku_data.EDGE_SIZE));
+        recyclerView.setLayoutManager(new GridLayoutManager(this, SudokuUtils.EDGE_SIZE));
         adapter = new BoardAdapter(this, null);
         recyclerView.setAdapter(adapter);
 
-        numButtons = new Button[Sudoku_data.EDGE_SIZE];
+        numButtons = new Button[SudokuUtils.EDGE_SIZE];
         int buttonId[] = new int[]{R.id.btn1, R.id.btn2, R.id.btn3, R.id.btn4, R.id.btn5, R.id.btn6, R.id.btn7, R.id.btn8, R.id.btn9};
-        for(int i = 0; i < Sudoku_data.EDGE_SIZE; i++){
+        for(int i = 0; i < SudokuUtils.EDGE_SIZE; i++){
             numButtons[i] = findViewById(buttonId[i]);
             numButtons[i].setOnClickListener(numButtonListener);
         }
@@ -91,10 +94,10 @@ public class MainActivity extends AppCompatActivity {
         btnHint.setOnClickListener(hintListener);
 
         isNote = false;
-
+        // Log.d("main", "level selector");
         levelSelector = new AlertDialog.Builder(this);
         levelSelector.setTitle("Choose a level:");
-        levelSelector.setSingleChoiceItems(Sudoku_data.LEVELS, 0, null);
+        levelSelector.setSingleChoiceItems(SudokuUtils.LEVELS, 0, null);
         levelSelector.setPositiveButton("OK", (dialog, which) -> {
             ListView listView = ((AlertDialog) dialog).getListView();
             String selectedItem = listView.getAdapter().getItem(listView.getCheckedItemPosition()).toString();
@@ -108,9 +111,9 @@ public class MainActivity extends AppCompatActivity {
             }
 
         });
-
         levelSelector.setNegativeButton("Cancel", null);
 
+        // Log.d("main", "demo algo selector");
         demoAlgoSelector = new AlertDialog.Builder(this);
         demoAlgoSelector.setTitle("Choose an algorithm:");
         demoAlgoSelector.setSingleChoiceItems(GameSolver.SOLVER_ALGORITHM, 0, null);
@@ -121,6 +124,7 @@ public class MainActivity extends AppCompatActivity {
         });
         demoAlgoSelector.setNegativeButton("Cancel", null);
 
+        // Log.d("main", "generator selector");
         generatorSelector = new AlertDialog.Builder(this);
         generatorSelector.setTitle("Load board generating in background?");
         // load background
@@ -159,8 +163,7 @@ public class MainActivity extends AppCompatActivity {
         generatorSelector.setNeutralButton("Cancel", null);
 
         // TODO: change this to generate a few at set up time..
-        // FIXME: Slow white screen at startup. May relate to kern?
-        database.backgroundExecutor.submit(() ->database.AddDefaultBoards());
+        // database.backgroundExecutor.submit(() ->database.AddDefaultBoards());
     }
 
     // created to call in new thread
@@ -210,8 +213,8 @@ public class MainActivity extends AppCompatActivity {
     private View.OnClickListener hintListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            // TODO
-            Toast.makeText(getApplicationContext(), "HINT NOT IMPLEMENTED", Toast.LENGTH_SHORT).show();
+            // Toast.makeText(getApplicationContext(), "HINT NOT IMPLEMENTED", Toast.LENGTH_SHORT).show();
+            adapter.SetHint(board_solution);
         }
     };
 
@@ -225,6 +228,9 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         Intent intent = null;
         switch (item.getItemId()) {
+            case R.id.menuPlayground:
+                intent = new Intent(getApplicationContext(), Playground.class);
+                startActivity(intent);
             case R.id.menuRestart:
                 adapter.UpdateBoard(board_tofill);
                 break;

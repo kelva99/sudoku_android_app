@@ -1,6 +1,6 @@
 package com.minigame.sudoku.GameSolver;
 
-import com.minigame.sudoku.Sudoku_data;
+import com.minigame.sudoku.SudokuUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -15,8 +15,8 @@ public class GameSolverDLX {
     private Node root;
     List<List<Integer>> currentBoard;
     private final int NUM_CONSTRAINT = 4;
-    private final int NUM_COLUMN_SIZE_MATRIX = Sudoku_data.TOTAL_CELL_COUNT * NUM_CONSTRAINT;
-    private final int MAX_NUM_ROW_SIZE_MATRIX = Sudoku_data.TOTAL_CELL_COUNT * Sudoku_data.EDGE_SIZE;
+    private final int NUM_COLUMN_SIZE_MATRIX = SudokuUtils.TOTAL_CELL_COUNT * NUM_CONSTRAINT;
+    private final int MAX_NUM_ROW_SIZE_MATRIX = SudokuUtils.TOTAL_CELL_COUNT * SudokuUtils.EDGE_SIZE;
     private Random rand;
     public GameSolverDLX() {
         SetCurrentBoardEmpty();
@@ -29,50 +29,47 @@ public class GameSolverDLX {
     }
 
     private void SetCurrentBoardEmpty(){
-        currentBoard = new ArrayList<>();
-        for(int i = 0; i < Sudoku_data.EDGE_SIZE; i++){
-            List<Integer> row = new ArrayList<>();
-            for(int j = 0; j < Sudoku_data.EDGE_SIZE; j++){
-                row.add(0);
-            }
-            currentBoard.add(row);
-        }
+        currentBoard = SudokuUtils.GetEmptyBoard();
     }
 
     public List<List<Integer>> GenerateNewBoard(){
         SetCurrentBoardEmpty();
         // select a random row to fill
-        int randRow = rand.nextInt(Sudoku_data.EDGE_SIZE);
+        int randRow = rand.nextInt(SudokuUtils.EDGE_SIZE);
         List<Integer> number = new ArrayList<>();
-        for(int i = 0; i < Sudoku_data.EDGE_SIZE; i++){
+        for(int i = 0; i < SudokuUtils.EDGE_SIZE; i++){
             number.add(i+1);
         }
         Collections.shuffle(number);
-        for(int i = 0; i < Sudoku_data.EDGE_SIZE; i++){
+        for(int i = 0; i < SudokuUtils.EDGE_SIZE; i++){
             currentBoard.get(randRow).set(i, number.get(i));
         }
         Solve();
         return currentBoard;
     }
 
-    public List<List<Integer>> SolveSudoku(List<List<Integer>> board){
+    public boolean SolveSudoku(List<List<Integer>> board){
         if (board != null){
-            currentBoard = new ArrayList<>(board);
+            currentBoard = SudokuUtils.DeepCopyList(board);
         }
-        Solve();
-        // TODO: check if the board is overwritten
-        return currentBoard;
+        return Solve();
     }
 
-    private void Solve(){
+    private boolean Solve(){
         LinkMatrix();
         results = new ArrayList<>();
         boolean hasSoln = Fill();
+        // Log.d("soln", currentBoard.toString());
         if (hasSoln) {
             for(Node n : results){
-                currentBoard.get(n.row).set(n.col, n.val);
+                if (currentBoard.get(n.row).get(n.col).equals(0)){
+                    currentBoard.get(n.row).set(n.col, n.val);
+                }
+
             }
         }
+        return hasSoln;
+        // Log.d("soln2", currentBoard.toString());
     }
 
     public Node SelectRandomColNode(){
@@ -148,23 +145,31 @@ public class GameSolverDLX {
         for(int i = 0; i < NUM_COLUMN_SIZE_MATRIX; i++){
             Node n = new Node(i);
             columnNodes.add(n);
-            rootnode.LinkLeft(n);
+
+            rootnode.LinkRight(n);
+            rootnode = n;
+            // rootnode.LinkLeft(n);
         }
+        rootnode = rootnode.right;
 
         for(List<Integer> row_constraints : lst_constraints ){
             Node cur = null;
-            int row = row_constraints.get(0) / Sudoku_data.EDGE_SIZE;
-            int col = row_constraints.get(0) % Sudoku_data.EDGE_SIZE;
-            int value = row_constraints.get(1) - Sudoku_data.TOTAL_CELL_COUNT - row * Sudoku_data.EDGE_SIZE +1;
+            int row = row_constraints.get(0) / SudokuUtils.EDGE_SIZE;
+            int col = row_constraints.get(0) % SudokuUtils.EDGE_SIZE;
+            int value = row_constraints.get(1) - SudokuUtils.TOTAL_CELL_COUNT - row * SudokuUtils.EDGE_SIZE +1;
             for(Integer c : row_constraints){
                 Node newNode = new Node(c, row, col, value);
                 newNode.colRoot = columnNodes.get(c);
-                columnNodes.get(c).LinkUp(newNode);
-                columnNodes.get(c).columnSize++;
+                // columnNodes.get(c).LinkUp(newNode);
+                newNode.colRoot.up.LinkDown(newNode);
+
+                newNode.colRoot.columnSize++;
                 if (cur == null){
                     cur = newNode;
                 }
-                cur.LinkLeft(newNode);
+                // cur.LinkLeft(newNode);
+                cur.LinkRight(newNode);
+                cur = newNode;
             }
 
         }
@@ -180,13 +185,13 @@ public class GameSolverDLX {
 
     private List<List<Integer>> GenerateConstraints(){
         List<List<Integer>> lst_constraints = new ArrayList<>();
-        for(int r = 0; r < Sudoku_data.EDGE_SIZE; r++){
-            for(int c = 0; c < Sudoku_data.EDGE_SIZE; c++){
+        for(int r = 0; r < SudokuUtils.EDGE_SIZE; r++){
+            for(int c = 0; c < SudokuUtils.EDGE_SIZE; c++){
                 if (currentBoard != null && currentBoard.get(r).get(c) > 0){
                     lst_constraints.add(GenerateConstraint_Row(r, c, currentBoard.get(r).get(c)));
                 }
                 else {
-                    for(int i = 1; i <= Sudoku_data.EDGE_SIZE; i++){
+                    for(int i = 1; i <= SudokuUtils.EDGE_SIZE; i++){
                         lst_constraints.add(GenerateConstraint_Row(r, c, i));
                     }
                 }
@@ -199,26 +204,26 @@ public class GameSolverDLX {
         List<Integer> res = new ArrayList<>();
         int val_index = val_real - 1;
         // constraint 1: each cell must filled [0-80]
-        res.add(row * Sudoku_data.EDGE_SIZE + col);
+        res.add(row * SudokuUtils.EDGE_SIZE + col);
         // constraint 2: each row has one occurrence [81- 161]
-        res.add(Sudoku_data.TOTAL_CELL_COUNT + row * Sudoku_data.EDGE_SIZE + val_index);
+        res.add(SudokuUtils.TOTAL_CELL_COUNT + row * SudokuUtils.EDGE_SIZE + val_index);
         // constraint 3: each column has one occurrence [162- 242]
-        res.add(Sudoku_data.TOTAL_CELL_COUNT * 2 + col * Sudoku_data.EDGE_SIZE + val_index);
+        res.add(SudokuUtils.TOTAL_CELL_COUNT * 2 + col * SudokuUtils.EDGE_SIZE + val_index);
         // constraint 4: each BOX_SIZE * BOX_SIZE has one occurrence [243-323]
-        res.add(Sudoku_data.TOTAL_CELL_COUNT * 3 + ((row / 3) * Sudoku_data.BOX_SIZE+ (col/3))* Sudoku_data.EDGE_SIZE+ val_index);
+        res.add(SudokuUtils.TOTAL_CELL_COUNT * 3 + ((row / 3) * SudokuUtils.BOX_SIZE+ (col/3))* SudokuUtils.EDGE_SIZE+ val_index);
         return  res;
     }
 
     @Deprecated
     private List<List<Integer>> GenerateConstraintsBin(){
         List<List<Integer>> matrix_bin = new ArrayList<>();
-        for(int r = 0; r < Sudoku_data.EDGE_SIZE; r++){
-            for(int c = 0; c < Sudoku_data.EDGE_SIZE; c++){
+        for(int r = 0; r < SudokuUtils.EDGE_SIZE; r++){
+            for(int c = 0; c < SudokuUtils.EDGE_SIZE; c++){
                 if (currentBoard != null && currentBoard.get(r).get(c) > 0){
                     matrix_bin.add(GenerateConstraintBin_Row(r, c, currentBoard.get(r).get(c)));
                 }
                 else {
-                    for(int i = 1; i <= Sudoku_data.EDGE_SIZE; i++){
+                    for(int i = 1; i <= SudokuUtils.EDGE_SIZE; i++){
                         matrix_bin.add(GenerateConstraintBin_Row(r, c, i));
                     }
                 }
@@ -232,13 +237,13 @@ public class GameSolverDLX {
         List<Integer> res = Arrays.asList(new Integer[NUM_COLUMN_SIZE_MATRIX]);
         int val_index = val_real - 1;
         // constraint 1: each cell must filled [1-81]
-        res.set(row * Sudoku_data.EDGE_SIZE + col, 1);
+        res.set(row * SudokuUtils.EDGE_SIZE + col, 1);
         // constraint 2: each row has one occurrence [82- 162]
-        res.set(Sudoku_data.TOTAL_CELL_COUNT + row * Sudoku_data.EDGE_SIZE + val_index, 1);
+        res.set(SudokuUtils.TOTAL_CELL_COUNT + row * SudokuUtils.EDGE_SIZE + val_index, 1);
         // constraint 3: each column has one occurrence [163- 243]
-        res.set(Sudoku_data.TOTAL_CELL_COUNT * 2 + col * Sudoku_data.EDGE_SIZE + val_index, 1);
+        res.set(SudokuUtils.TOTAL_CELL_COUNT * 2 + col * SudokuUtils.EDGE_SIZE + val_index, 1);
         // constraint 4: each BOX_SIZE * BOX_SIZE has one occurrence [244-324]
-        res.set(Sudoku_data.TOTAL_CELL_COUNT * 3 + ((row / 3) * Sudoku_data.BOX_SIZE+ (col/3))* Sudoku_data.EDGE_SIZE+ val_index , 1);
+        res.set(SudokuUtils.TOTAL_CELL_COUNT * 3 + ((row / 3) * SudokuUtils.BOX_SIZE+ (col/3))* SudokuUtils.EDGE_SIZE+ val_index , 1);
         return  res;
     }
 

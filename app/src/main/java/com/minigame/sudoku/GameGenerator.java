@@ -1,7 +1,10 @@
 package com.minigame.sudoku;
 
+import android.util.Log;
+
 import com.minigame.sudoku.GameSolver.GameSolverDLX;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -18,6 +21,8 @@ public class GameGenerator {
 
     public List<List<Integer>> GenerateSolvableBoard(List<List<Integer>> solution, String level){
         // TODO: implement this - PRIORITY
+        List<List<Integer>> starter = new ArrayList<>(solution);
+        Log.d("solution", starter.toString());
         return solution;
     }
 

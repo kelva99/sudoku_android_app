@@ -25,31 +25,20 @@ class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private int clr_selectedCell;
     private int clr_incorrectNumber;
+    private int clr_correctNumber;
     private int clr_cannotEdit;
 
     public BoardAdapter(Context context, List<List<Integer>> gameboard) {
         super();
         this.layoutInflater = LayoutInflater.from(context);
-        this.board = gameboard;
+        this.board = SudokuUtils.DeepCopyList(gameboard);
         this.cell_background = context.getDrawable(R.drawable.cell_background);
-        // debug
-        if (board == null){
-            board = new ArrayList<List<Integer>>();
-            for(int i = 0; i < Sudoku_data.EDGE_SIZE; i++){
-                List<Integer> l = new ArrayList<Integer>();
-                for(int j = 0; j < Sudoku_data.EDGE_SIZE; j++){
-                    l.add(0);
-                }
-                board.add(l);
-            }
-        }
-
 
         // create nested list for viewholder
         boardViews = new ArrayList<List<ViewHolder>>();
-        for(int i = 0; i < Sudoku_data.EDGE_SIZE; i++){
+        for(int i = 0; i < SudokuUtils.EDGE_SIZE; i++){
             List<ViewHolder> l = new ArrayList<ViewHolder>();
-            for(int j = 0; j < Sudoku_data.EDGE_SIZE; j++){
+            for(int j = 0; j < SudokuUtils.EDGE_SIZE; j++){
                 l.add(null);
             }
             boardViews.add(l);
@@ -57,16 +46,34 @@ class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
         clr_selectedCell = context.getColor(R.color.colorPrimaryLight);
         clr_incorrectNumber = context.getColor(R.color.red);
+        clr_correctNumber = context.getColor(R.color.darkgrey);
         clr_cannotEdit = context.getColor(R.color.grey);
         selectedRow = -1;
         clr_selectedCell = -1;
     }
 
+
+
     public void UpdateBoard(List<List<Integer>> newboard){
-        if (newboard != null){
-            board = newboard;
-            notifyDataSetChanged();
+        board.clear();
+        board = SudokuUtils.DeepCopyList(newboard);
+        notifyDataSetChanged();
+    }
+
+    public void EraseBoard(){
+        board = new ArrayList<List<Integer>>();
+        for(int i = 0; i < SudokuUtils.EDGE_SIZE; i++){
+            List<Integer> l = new ArrayList<Integer>();
+            for(int j = 0; j < SudokuUtils.EDGE_SIZE; j++){
+                l.add(0);
+            }
+            board.add(l);
         }
+        notifyDataSetChanged();
+    }
+
+    public List<List<Integer>> GetBoard() {
+        return board;
     }
 
     public void FillNumber(boolean isNote, int whichNumber){
@@ -76,7 +83,7 @@ class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         ViewHolder view = boardViews.get(selectedRow).get(selectedCol);
         if (!view.canUpdate) return;
         if (isNote){
-            if (whichNumber < 1 || whichNumber > Sudoku_data.EDGE_SIZE){
+            if (whichNumber < 1 || whichNumber > SudokuUtils.EDGE_SIZE){
                 return;
             }
             view.SetNumber(0);
@@ -85,13 +92,16 @@ class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             // Log.d("fill_number", "set text for note");
         }
         else {
-            for(int i = 0; i < Sudoku_data.EDGE_SIZE; i++){
+            for(int i = 0; i < SudokuUtils.EDGE_SIZE; i++){
                 view.hints[i].setAlpha(0);
             }
             view.SetNumber(whichNumber);
         }
-        if (!ValidEntry()){
+        if (!SudokuUtils.ValidEntry(board, selectedRow, selectedCol, whichNumber)){
             view.selectedNumber.setTextColor(clr_incorrectNumber);
+        }
+        else{
+            view.selectedNumber.setTextColor(clr_correctNumber);
         }
     }
 
@@ -103,28 +113,31 @@ class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         if (!view.canUpdate) return;
 
         view.SetNumber(0);
-        for(int i = 0; i < Sudoku_data.EDGE_SIZE; i++){
+        for(int i = 0; i < SudokuUtils.EDGE_SIZE; i++){
             view.hints[i].setAlpha(0);
         }
         board.get(selectedRow).set(selectedCol, 0);
     }
 
-    public boolean ValidEntry() {
-
-        return true;
+    public void SetHint(List<List<Integer>> solution){
+        ViewHolder vh = boardViews.get(selectedRow).get(selectedCol);
+        if (vh.canUpdate) {
+            vh.SetNumber(solution.get(selectedRow).get(selectedCol));
+            // TODO: Make hint more clear
+        }
     }
 
     private String GetBoardAsPrettyString(){
         String s = "";
-        for(int i = 0; i < Sudoku_data.EDGE_SIZE; i++){
-            for(int j = 0; j < Sudoku_data.EDGE_SIZE; j++){
+        for(int i = 0; i < SudokuUtils.EDGE_SIZE; i++){
+            for(int j = 0; j < SudokuUtils.EDGE_SIZE; j++){
                 s += board.get(i).get(j);
-                if ((j + 1) % Sudoku_data.BOX_SIZE == 0 && (j+1) != Sudoku_data.EDGE_SIZE){
+                if ((j + 1) % SudokuUtils.BOX_SIZE == 0 && (j+1) != SudokuUtils.EDGE_SIZE){
                     s += "  ";
                 }
             }
             s += "\n";
-            if ((i + 1) % Sudoku_data.BOX_SIZE == 0 && (i+1) != Sudoku_data.EDGE_SIZE){
+            if ((i + 1) % SudokuUtils.BOX_SIZE == 0 && (i+1) != SudokuUtils.EDGE_SIZE){
                 s += "\n";
             }
         }
@@ -143,10 +156,10 @@ class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             shell = itemView.findViewById(R.id.shell);
-            hints = new TextView[Sudoku_data.EDGE_SIZE];
+            hints = new TextView[SudokuUtils.EDGE_SIZE];
             int hints_id[] = new int[]{R.id.hint1, R.id.hint2, R.id.hint3, R.id.hint4, R.id.hint5,
                     R.id.hint6, R.id.hint7, R.id.hint8, R.id.hint9};
-            for(int i = 0; i < Sudoku_data.EDGE_SIZE; i++){
+            for(int i = 0; i < SudokuUtils.EDGE_SIZE; i++){
                 hints[i] = itemView.findViewById(hints_id[i]);
             }
             selectedNumber = itemView.findViewById(R.id.selectedNumber);
@@ -168,7 +181,7 @@ class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         };
 
         public void SetNumber(int num){
-            if (num < 0 || num > Sudoku_data.EDGE_SIZE) return;
+            if (num < 0 || num > SudokuUtils.EDGE_SIZE) return;
             board.get(row).set(column, num);
             selectedNumber.setText(num == 0? "" : Integer.toString(num));
             // Log.d("set number", num + "");
@@ -187,29 +200,31 @@ class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         ViewHolder vh = (ViewHolder) holder;
+        vh.row = position/ SudokuUtils.EDGE_SIZE;
+        vh.column = position% SudokuUtils.EDGE_SIZE;
         int val = getItem(position);
         vh.SetNumber(val);
-        if (val >= 1 && val <= Sudoku_data.EDGE_SIZE){
+        if (val >= 1 && val <= SudokuUtils.EDGE_SIZE){
             vh.canUpdate = false;
             vh.selectedNumber.setTextColor(clr_cannotEdit);
         }
-        vh.row = position/Sudoku_data.EDGE_SIZE;
-        vh.column = position%Sudoku_data.EDGE_SIZE;
+
         boardViews.get(vh.row).set(vh.column, vh);
+        // Log.d("soln - posn", vh.row + " " + vh.column + " " + vh.selectedNumber.getText());
     }
 
     @Override
     public int getItemCount() {
-        return Sudoku_data.TOTAL_CELL_COUNT;
+        return SudokuUtils.TOTAL_CELL_COUNT;
     }
 
-    // convenience method for getting data at click position
-    int getItem(int id) {
-        return board.get((int)id/Sudoku_data.EDGE_SIZE).get(id%Sudoku_data.EDGE_SIZE);
+
+    int getItem(int pos) {
+        return board.get(pos/ SudokuUtils.EDGE_SIZE).get(pos% SudokuUtils.EDGE_SIZE);
     }
 
     void setItem(int pos, int i) {
-        board.get((int)pos/Sudoku_data.EDGE_SIZE).set(pos%Sudoku_data.EDGE_SIZE, i);
+        board.get(pos/ SudokuUtils.EDGE_SIZE).set(pos% SudokuUtils.EDGE_SIZE, i);
     }
 
 }

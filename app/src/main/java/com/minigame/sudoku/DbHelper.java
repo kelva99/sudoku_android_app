@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.concurrent.ThreadPoolExecutor;
 
 public class DbHelper extends SQLiteOpenHelper {
@@ -38,7 +37,6 @@ public class DbHelper extends SQLiteOpenHelper {
         rand = new Random();
         generator = new GameGenerator();
         backgroundExecutor = Executors.newCachedThreadPool();
-        AddDefaultBoards();
     }
 
     public DbHelper(Context context, ExecutorService pool) {
@@ -90,14 +88,14 @@ public class DbHelper extends SQLiteOpenHelper {
 
     public static List<List<Integer>> StringToList(String str) {
         List<List<Integer>> ret = new ArrayList<>();
-        if (str.length() != Sudoku_data.TOTAL_CELL_COUNT){
+        if (str.length() != SudokuUtils.TOTAL_CELL_COUNT){
             return null;
         }
-        for(int i = 0; i < Sudoku_data.EDGE_SIZE; i++){
+        for(int i = 0; i < SudokuUtils.EDGE_SIZE; i++){
             List<Integer> row = new ArrayList<>();
-            for(int j = 0; j < Sudoku_data.EDGE_SIZE; j++){
+            for(int j = 0; j < SudokuUtils.EDGE_SIZE; j++){
                 try {
-                    row.add(Integer.parseInt(Character.toString(str.charAt(i * Sudoku_data.EDGE_SIZE + j))));
+                    row.add(Integer.parseInt(Character.toString(str.charAt(i * SudokuUtils.EDGE_SIZE + j))));
                 }
                 catch (Exception e){
                     Log.e("String to List db", e.toString());
