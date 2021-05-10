@@ -11,6 +11,7 @@ public class SudokuUtils {
     public static final String[] LEVELS = {"EASY", "MEDIUM", "HARD", "MASTER+"};
 
     // https://www.fi.muni.cz/~xpelanek/publications/sudoku-arxiv.pdf
+    /*
     public static final HashMap<String, Double> TECHNIQUE_RATING = new HashMap<String, Double>(){
         {
             TECHNIQUE_RATING.put("Hidden Single", 1.2); // easy
@@ -23,9 +24,10 @@ public class SudokuUtils {
             // TECHNIQUE_RATING.put("Claiming", 2.8);
         }
     };
+     */
 
     public static List<List<Integer>> GetEmptyBoard(){
-        List<List<Integer>> currentBoard = new ArrayList<>();
+        List<List<Integer>> currentBoard = new ArrayList<List<Integer>>();
         for(int i = 0; i < EDGE_SIZE; i++){
             List<Integer> row = new ArrayList<>();
             for(int j = 0; j < EDGE_SIZE; j++){

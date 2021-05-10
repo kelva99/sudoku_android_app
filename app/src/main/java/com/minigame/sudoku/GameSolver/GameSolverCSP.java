@@ -24,13 +24,12 @@ public class GameSolverCSP extends ABCGameSolver {
         queue = new ArrayList<>();
     }
 
-    public boolean SolveSudoku(List<List<Integer>> newboard) {
-        board = SudokuUtils.DeepCopyList(newboard);
+    public List<List<List<Integer>>> AC3(List<List<Integer>> newboard) {
         candidates = new ArrayList<>();
         for(int row = 0; row < SudokuUtils.EDGE_SIZE; row++){
             List<List<Integer>> newrow = new ArrayList<>();
             for(int col = 0; col < SudokuUtils.EDGE_SIZE; col++){
-                int val = board.get(row).get(col);
+                int val = newboard.get(row).get(col);
                 if (val == 0){
                     newrow.add(IntStream.range(1, SudokuUtils.EDGE_SIZE + 1).boxed().collect(Collectors.toList()));
 
@@ -61,13 +60,13 @@ public class GameSolverCSP extends ABCGameSolver {
             candidates.add(newrow);
         }
 
-        Log.d("csp", candidates.toString());
+        // Log.d("csp", candidates.toString());
         int size = queue.size();
 
         while(size > 0){
             Pair<Pair<Integer, Integer>, Pair<Integer, Integer>> nextToCheck = queue.remove(0);
             size--;
-            Log.d("csp size", Integer.toString(size));
+            // Log.d("csp size", Integer.toString(size));
             boolean reduced = false;
             int row = nextToCheck.first.first;
             int col = nextToCheck.first.second;
@@ -82,24 +81,24 @@ public class GameSolverCSP extends ABCGameSolver {
             }
 
             if (reduced){
-                Log.d("csp",  "reduced " + nextToCheck.toString());
-                Log.d("csp", valuesToCheck_x.toString() + " -> " + candidates.get(row).get(col).toString());
+                // Log.d("csp",  "reduced " + nextToCheck.toString());
+                // Log.d("csp", valuesToCheck_x.toString() + " -> " + candidates.get(row).get(col).toString());
                 if (candidates.get(row).get(col).size() == 0) {
-                    return false;
+                    return null;
                 }
                 else {
                     for(int c = 0; c < SudokuUtils.EDGE_SIZE; c++){
                         if (new Pair<>(row, c).equals(nextToCheck.second) || c == col) continue;
                         queue.add(new Pair<>(new Pair<>(row, c), new Pair<>(row, col)));
                         size++;
-                        Log.d("csp", "add "+ new Pair<>(new Pair<>(row, c), new Pair<>(row, col)));
+                        // Log.d("csp", "add "+ new Pair<>(new Pair<>(row, c), new Pair<>(row, col)));
                     }
 
                     for(int r = 0; r < SudokuUtils.EDGE_SIZE; r++){
                         if (new Pair<>(r, col).equals(nextToCheck.second) || r == row) continue;
                         queue.add(new Pair<>(new Pair<>(r, col), new Pair<>(row, col)));
                         size++;
-                        Log.d("csp", "add "+ new Pair<>(new Pair<>(r, col), new Pair<>(row, col)));
+                        // Log.d("csp", "add "+ new Pair<>(new Pair<>(r, col), new Pair<>(row, col)));
                     }
 
                     for(int r = 0; r < SudokuUtils.BOX_SIZE; r++){
@@ -109,15 +108,22 @@ public class GameSolverCSP extends ABCGameSolver {
                             if (new Pair<>(r, col).equals(nextToCheck.second) || (newRow == row && newCol == col)) continue;
                             queue.add(new Pair<>(new Pair<>(newRow, newCol), new Pair<>(row, col)));
                             size++;
-                            Log.d("csp", "add "+ new Pair<>(new Pair<>(newRow, newCol), new Pair<>(row, col)));
+                            // Log.d("csp", "add "+ new Pair<>(new Pair<>(newRow, newCol), new Pair<>(row, col)));
                         }
                     }
                 }
             }
-        } // while loop done
+        }
         Log.d("csp", candidates.toString());
+        return candidates;
+    }
+
+    public boolean SolveSudoku(List<List<Integer>> newboard) {
+        // ac3
+        if (AC3(newboard) == null) return false;
 
         // backtracing
+        board = SudokuUtils.DeepCopyList(newboard);
         return SolveRecursive();
     }
 
