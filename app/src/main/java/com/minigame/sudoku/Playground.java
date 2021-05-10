@@ -22,6 +22,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+// TODO: add step by step solve visualizer
+
 public class Playground extends AppCompatActivity {
     private Button[] numButtons;
     private BoardAdapter adapter;
@@ -70,7 +72,7 @@ public class Playground extends AppCompatActivity {
 
         demoAlgoSelector = new AlertDialog.Builder(this);
         demoAlgoSelector.setTitle("Choose an algorithm:");
-        demoAlgoSelector.setSingleChoiceItems(GameSolver.SOLVER_ALGORITHM, 1, null);
+        demoAlgoSelector.setSingleChoiceItems(GameSolver.SOLVER_ALGORITHM, GameSolver.SOLVER_ALGORITHM.length - 1, null);
         demoAlgoSelector.setPositiveButton("OK", (dialog, which) -> {
             ListView listView = ((AlertDialog) dialog).getListView();
             String selectedItem = listView.getAdapter().getItem(listView.getCheckedItemPosition()).toString();

@@ -5,7 +5,7 @@ import android.widget.Toast;
 import java.util.List;
 
 public class GameSolver {
-    enum solver_algorithm {BACKTRACING("BACKTRACING"), DLX("DLX"), CSP("CSP");
+    enum solver_algorithm {BACKTRACING("BACKTRACING"), DLX("DLX"), CSP("CSP with Backtracing");
         private final String text;
         solver_algorithm(String text) {
             this.text = text;

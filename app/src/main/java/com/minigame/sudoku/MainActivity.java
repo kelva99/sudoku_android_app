@@ -162,7 +162,7 @@ public class MainActivity extends AppCompatActivity {
         });
         generatorSelector.setNeutralButton("Cancel", null);
 
-        // TODO: change this to generate a few at set up time..
+        // TODO: change this to generate a few at set up time?
         // database.backgroundExecutor.submit(() ->database.AddDefaultBoards());
     }
 
@@ -205,7 +205,7 @@ public class MainActivity extends AppCompatActivity {
     private View.OnClickListener undoListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            // TODO
+            // TODO: undo, need a queue to store operations
             Toast.makeText(getApplicationContext(), "UNDO NOT IMPLEMENTED", Toast.LENGTH_SHORT).show();
         }
     };
@@ -248,12 +248,12 @@ public class MainActivity extends AppCompatActivity {
                 break;
 
             case R.id.menuStatistics:
-                // TODO
+                // TODO: stat, sql store how game played/finished/time/etc...
                 Toast.makeText(getApplicationContext(), "STAT NOT IMPLEMENTED", Toast.LENGTH_SHORT).show();
                 break;
 
             case R.id.menuSettings:
-                // TODO
+                // TODO: settings, change theme, clear data, etc
                 Toast.makeText(getApplicationContext(), "SETTINGS NOT IMPLEMENTED", Toast.LENGTH_SHORT).show();
                 break;
 

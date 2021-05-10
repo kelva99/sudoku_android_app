@@ -21,7 +21,7 @@ public class GameGenerator {
 
     public List<List<Integer>> GenerateSolvableBoard(List<List<Integer>> solution, String level){
         // TODO: implement this - PRIORITY
-        List<List<Integer>> starter = new ArrayList<>(solution);
+        List<List<Integer>> starter = SudokuUtils.DeepCopyList(solution);
         Log.d("solution", starter.toString());
         return solution;
     }

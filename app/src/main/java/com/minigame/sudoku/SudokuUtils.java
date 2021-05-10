@@ -8,23 +8,21 @@ public class SudokuUtils {
     public static final int BOX_SIZE = 3;
     public static final int EDGE_SIZE = BOX_SIZE *BOX_SIZE;
     public static final int TOTAL_CELL_COUNT = EDGE_SIZE * EDGE_SIZE;
-    public static final String[] LEVELS = {"EASY", "MEDIUM", "HARD"};
+    public static final String[] LEVELS = {"EASY", "MEDIUM", "HARD", "MASTER+"};
 
     // https://www.fi.muni.cz/~xpelanek/publications/sudoku-arxiv.pdf
-    /*
     public static final HashMap<String, Double> TECHNIQUE_RATING = new HashMap<String, Double>(){
         {
-            TECHNIQUE_RATING.put("Hidden Single", 1.2);
-            TECHNIQUE_RATING.put("Direct Pointing", 1.7);
-            TECHNIQUE_RATING.put("Direct Claiming", 1.9);
+            TECHNIQUE_RATING.put("Hidden Single", 1.2); // easy
+            TECHNIQUE_RATING.put("Direct Pointing", 1.7); // easy
+            TECHNIQUE_RATING.put("Direct Claiming", 1.9); // easy
             TECHNIQUE_RATING.put("Direct Hidden Pair", 2.0);
             TECHNIQUE_RATING.put("Naked Single", 2.3);
             TECHNIQUE_RATING.put("Direct Hidden Triple", 2.5);
-            TECHNIQUE_RATING.put("Pointing", 2.6);
-            TECHNIQUE_RATING.put("Claiming", 2.8);
+            // TECHNIQUE_RATING.put("Pointing", 2.6);
+            // TECHNIQUE_RATING.put("Claiming", 2.8);
         }
     };
-     */
 
     public static List<List<Integer>> GetEmptyBoard(){
         List<List<Integer>> currentBoard = new ArrayList<>();

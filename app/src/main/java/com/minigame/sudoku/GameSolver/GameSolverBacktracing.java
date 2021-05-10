@@ -4,7 +4,7 @@ import com.minigame.sudoku.SudokuUtils;
 
 import java.util.List;
 
-public class GameSolverBacktracing {
+public class GameSolverBacktracing  extends ABCGameSolver {
 
     private List<List<Integer>> board;
     public GameSolverBacktracing(){
