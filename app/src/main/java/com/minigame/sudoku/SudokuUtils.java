@@ -1,5 +1,7 @@
 package com.minigame.sudoku;
 
+import android.util.Pair;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -8,26 +10,36 @@ public class SudokuUtils {
     public static final int BOX_SIZE = 3;
     public static final int EDGE_SIZE = BOX_SIZE *BOX_SIZE;
     public static final int TOTAL_CELL_COUNT = EDGE_SIZE * EDGE_SIZE;
-    public static final String[] LEVELS = {"EASY", "MEDIUM", "HARD", "MASTER+"};
+
+    public static final HashMap<String, Pair<Integer, Integer>> LEVEL;
+    static {
+        LEVEL = new HashMap<>();
+        LEVEL.put("EASY",    new Pair<>(20, 2));
+        LEVEL.put("MEDIUM",  new Pair<>(34, 3));
+        LEVEL.put("HARD",    new Pair<>(45, 4));
+        LEVEL.put("MASTER+", new Pair<>(81, 9)); // remove as many as possible
+    }
+
+    // TODO: LEVELS string[] is not pretty...
+    // public static String[] LEVELS = (String[]) LEVEL.keySet().toArray();
+    public final static String[] LEVELS = {"EASY", "MEDIUM", "HARD", "MASTER+"};
 
     // https://www.fi.muni.cz/~xpelanek/publications/sudoku-arxiv.pdf
-    /*
-    public static final HashMap<String, Double> TECHNIQUE_RATING = new HashMap<String, Double>(){
-        {
-            TECHNIQUE_RATING.put("Hidden Single", 1.2); // easy
-            TECHNIQUE_RATING.put("Direct Pointing", 1.7); // easy
-            TECHNIQUE_RATING.put("Direct Claiming", 1.9); // easy
-            TECHNIQUE_RATING.put("Direct Hidden Pair", 2.0);
-            TECHNIQUE_RATING.put("Naked Single", 2.3);
-            TECHNIQUE_RATING.put("Direct Hidden Triple", 2.5);
-            // TECHNIQUE_RATING.put("Pointing", 2.6);
-            // TECHNIQUE_RATING.put("Claiming", 2.8);
-        }
-    };
-     */
+    public static final HashMap<String, Double> TECHNIQUE_RATING;
+    static {
+        TECHNIQUE_RATING = new HashMap<>();
+        TECHNIQUE_RATING.put("Hidden Single", 1.2); // easy
+        TECHNIQUE_RATING.put("Direct Pointing", 1.7); // easy
+        TECHNIQUE_RATING.put("Direct Claiming", 1.9); // easy
+        TECHNIQUE_RATING.put("Direct Hidden Pair", 2.0);
+        TECHNIQUE_RATING.put("Naked Single", 2.3);
+        TECHNIQUE_RATING.put("Direct Hidden Triple", 2.5);
+        // TECHNIQUE_RATING.put("Pointing", 2.6);
+        // TECHNIQUE_RATING.put("Claiming", 2.8);
+    }
 
     public static List<List<Integer>> GetEmptyBoard(){
-        List<List<Integer>> currentBoard = new ArrayList<List<Integer>>();
+        List<List<Integer>> currentBoard = new ArrayList<>();
         for(int i = 0; i < EDGE_SIZE; i++){
             List<Integer> row = new ArrayList<>();
             for(int j = 0; j < EDGE_SIZE; j++){

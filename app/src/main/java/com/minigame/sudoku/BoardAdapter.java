@@ -14,6 +14,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
@@ -123,8 +125,54 @@ class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         ViewHolder vh = boardViews.get(selectedRow).get(selectedCol);
         if (vh.canUpdate) {
             vh.SetNumber(solution.get(selectedRow).get(selectedCol));
+            vh.selectedNumber.setTextColor(clr_correctNumber);
             // TODO: Make hint more clear
         }
+    }
+
+    public boolean isFinished(List<List<Integer>> solution) {
+        return solution.equals(board);
+    }
+
+    // no solution version
+    public boolean isFinished() {
+        List<Integer> numsAvailable;
+        int n = 0;
+
+        for(int i = 0; i < SudokuUtils.EDGE_SIZE; i++) {
+            numsAvailable = IntStream.range(1,  SudokuUtils.EDGE_SIZE+1).boxed().collect(Collectors.toList());
+
+            // ith row and jth column
+            for(int j = 0; j < SudokuUtils.EDGE_SIZE; j++) {
+                n = board.get(i).get(j);
+                if (!numsAvailable.contains(n) || n == 0) {
+                    return false;
+                }
+                numsAvailable.remove(numsAvailable.indexOf(n));
+            }
+
+            numsAvailable = IntStream.range(1, SudokuUtils.EDGE_SIZE+1).boxed().collect(Collectors.toList());
+            // jth row and ith column
+            for(int j = 0; j < SudokuUtils.EDGE_SIZE; j++) {
+                n = board.get(j).get(i);
+                if (!numsAvailable.contains(n) || n == 0) {
+                    return false;
+                }
+                numsAvailable.remove(numsAvailable.indexOf(n));
+            }
+
+            numsAvailable = IntStream.range(1, SudokuUtils.EDGE_SIZE+1).boxed().collect(Collectors.toList());
+            // ith box
+            for(int j = 0; j < SudokuUtils.EDGE_SIZE; j++) {
+                n = board.get(i - i%SudokuUtils.BOX_SIZE + j/SudokuUtils.BOX_SIZE)
+                         .get(i%SudokuUtils.BOX_SIZE * SudokuUtils.BOX_SIZE+j%SudokuUtils.BOX_SIZE);
+                if (!numsAvailable.contains(n) || n == 0) {
+                    return false;
+                }
+                numsAvailable.remove(numsAvailable.indexOf(n));
+            }
+        }
+        return true;
     }
 
     private String GetBoardAsPrettyString(){

@@ -1,5 +1,6 @@
 package com.minigame.sudoku.GameSolver;
 
+import android.util.Log;
 import android.widget.Toast;
 
 import java.util.List;

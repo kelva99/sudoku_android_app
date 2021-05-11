@@ -1,5 +1,7 @@
 package com.minigame.sudoku.GameSolver;
 
+import android.util.Log;
+
 import com.minigame.sudoku.SudokuUtils;
 
 import java.util.List;
@@ -13,10 +15,18 @@ public class GameSolverBacktracing  extends ABCGameSolver {
 
     public boolean SolveSudoku(List<List<Integer>> newboard) {
         board = SudokuUtils.DeepCopyList(newboard);
-        return SolveRecursive();
+        return SolveRecursive(false);
     }
 
-    private boolean SolveRecursive() {
+    private int uniqueSolutionCounter;
+    public int UniqueSolutionCount(List<List<Integer>> newboard){
+        uniqueSolutionCounter = 0;
+        SolveRecursive(true);
+        return uniqueSolutionCounter;
+
+    }
+
+    private boolean SolveRecursive(boolean countSolution) {
         int row = -1, col = -1;
         for(int r = 0; r < SudokuUtils.EDGE_SIZE; r++) {
             for(int c = 0; c < SudokuUtils.EDGE_SIZE; c++){
@@ -30,8 +40,14 @@ public class GameSolverBacktracing  extends ABCGameSolver {
                 break;
             }
         }
-        if (row == -1 && col == -1){
-            return true;
+        if (row == -1){
+            if (countSolution) {
+                uniqueSolutionCounter++;
+                return uniqueSolutionCounter >= 2;
+            }
+            else {
+                return true;
+            }
         }
 
         for(int n = 1; n <= SudokuUtils.EDGE_SIZE; n++){
@@ -40,7 +56,7 @@ public class GameSolverBacktracing  extends ABCGameSolver {
                 board.get(row).set(col, 0);
                 continue;
             }
-            if (SolveRecursive()) {
+            if (SolveRecursive(countSolution)) {
                 return true;
             }
             else {

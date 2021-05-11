@@ -1,6 +1,7 @@
 package com.minigame.sudoku;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -15,6 +16,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -35,9 +37,7 @@ public class MainActivity extends AppCompatActivity {
     private GameGenerator generator;
     private GameSolver solver;
 
-    private AlertDialog.Builder levelSelector;
-    private AlertDialog.Builder demoAlgoSelector;
-    private AlertDialog.Builder generatorSelector;
+    private AlertDialog.Builder levelSelector, demoAlgoSelector, generatorSelector, gameendSelector;
 
     // https://www.baeldung.com/java-asynchronous-programming
     private ExecutorService tGenerateNewBoard;
@@ -162,6 +162,26 @@ public class MainActivity extends AppCompatActivity {
         });
         generatorSelector.setNeutralButton("Cancel", null);
 
+        // game end message
+        gameendSelector = new AlertDialog.Builder(this);
+        gameendSelector.setTitle("Congratulation! \nPlease select puzzle difficulty:");
+        gameendSelector.setSingleChoiceItems(SudokuUtils.LEVELS, 0, null);
+        gameendSelector.setPositiveButton("OK", (dialog, which) -> {
+            ListView listView = ((AlertDialog) dialog).getListView();
+            String selectedItem = listView.getAdapter().getItem(listView.getCheckedItemPosition()).toString();
+            board_solution = database.LoadRandomBoard();
+            if (board_solution == null){
+                Toast.makeText(getApplicationContext(), "Generating unique boards...", Toast.LENGTH_LONG).show();
+            }
+            else {
+                board_tofill = generator.GenerateSolvableBoard(board_solution, selectedItem);
+                adapter.UpdateBoard(board_tofill);
+            }
+
+        });
+        gameendSelector.setNegativeButton("Cancel", null);
+
+
         // TODO: change this to generate a few at set up time?
         // database.backgroundExecutor.submit(() ->database.AddDefaultBoards());
     }
@@ -178,6 +198,9 @@ public class MainActivity extends AppCompatActivity {
         public void onClick(View v) {
             int whichNumber = Integer.parseInt(((TextView) v).getText().toString());
             adapter.FillNumber(isNote, whichNumber);
+            if (adapter.isFinished(board_solution)) {
+                gameendSelector.show();
+            }
         }
     };
 
@@ -215,6 +238,9 @@ public class MainActivity extends AppCompatActivity {
         public void onClick(View v) {
             // Toast.makeText(getApplicationContext(), "HINT NOT IMPLEMENTED", Toast.LENGTH_SHORT).show();
             adapter.SetHint(board_solution);
+            if (adapter.isFinished(board_solution)) {
+                gameendSelector.show();
+            }
         }
     };
 
@@ -224,6 +250,8 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
+    // TODO: onPause/onResume save state
+
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         Intent intent = null;
@@ -231,6 +259,8 @@ public class MainActivity extends AppCompatActivity {
             case R.id.menuPlayground:
                 intent = new Intent(getApplicationContext(), Playground.class);
                 startActivity(intent);
+                break;
+
             case R.id.menuRestart:
                 adapter.UpdateBoard(board_tofill);
                 break;

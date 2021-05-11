@@ -39,6 +39,7 @@ public class Playground extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_playground);
+        setTitle("Playground");
 
         solver = new GameSolver();
 
