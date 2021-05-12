@@ -37,6 +37,7 @@ public class GameSolver {
     public List<List<Integer>> Solve(String which, List<List<Integer>> board){
         List<List<Integer>> newBoard = null;
         boolean result  = false;
+        Log.d("Solve", board.toString());
         if (which.equals(solver_algorithm.BACKTRACING.toString())) {
             result = backtracing.SolveSudoku(board);
             if (result) {

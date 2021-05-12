@@ -5,6 +5,8 @@ import android.util.Pair;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class SudokuUtils {
     public static final int BOX_SIZE = 3;
@@ -20,10 +22,10 @@ public class SudokuUtils {
         LEVEL.put("MASTER+", new Pair<>(81, 9)); // remove as many as possible
     }
 
-    // TODO: LEVELS string[] is not pretty...
     // public static String[] LEVELS = (String[]) LEVEL.keySet().toArray();
     public final static String[] LEVELS = {"EASY", "MEDIUM", "HARD", "MASTER+"};
 
+    /*
     // https://www.fi.muni.cz/~xpelanek/publications/sudoku-arxiv.pdf
     public static final HashMap<String, Double> TECHNIQUE_RATING;
     static {
@@ -34,9 +36,10 @@ public class SudokuUtils {
         TECHNIQUE_RATING.put("Direct Hidden Pair", 2.0);
         TECHNIQUE_RATING.put("Naked Single", 2.3);
         TECHNIQUE_RATING.put("Direct Hidden Triple", 2.5);
-        // TECHNIQUE_RATING.put("Pointing", 2.6);
-        // TECHNIQUE_RATING.put("Claiming", 2.8);
+        TECHNIQUE_RATING.put("Pointing", 2.6);
+        TECHNIQUE_RATING.put("Claiming", 2.8);
     }
+     */
 
     public static List<List<Integer>> GetEmptyBoard(){
         List<List<Integer>> currentBoard = new ArrayList<>();
@@ -85,6 +88,47 @@ public class SudokuUtils {
             }
         }
 
+        return true;
+    }
+
+    // no solution version
+    public boolean isFinished(List<List<Integer>> board) {
+        List<Integer> numsAvailable;
+        int n = 0;
+
+        for(int i = 0; i < SudokuUtils.EDGE_SIZE; i++) {
+            numsAvailable = IntStream.range(1,  SudokuUtils.EDGE_SIZE+1).boxed().collect(Collectors.toList());
+
+            // ith row and jth column
+            for(int j = 0; j < SudokuUtils.EDGE_SIZE; j++) {
+                n = board.get(i).get(j);
+                if (!numsAvailable.contains(n) || n == 0) {
+                    return false;
+                }
+                numsAvailable.remove(numsAvailable.indexOf(n));
+            }
+
+            numsAvailable = IntStream.range(1, SudokuUtils.EDGE_SIZE+1).boxed().collect(Collectors.toList());
+            // jth row and ith column
+            for(int j = 0; j < SudokuUtils.EDGE_SIZE; j++) {
+                n = board.get(j).get(i);
+                if (!numsAvailable.contains(n) || n == 0) {
+                    return false;
+                }
+                numsAvailable.remove(numsAvailable.indexOf(n));
+            }
+
+            numsAvailable = IntStream.range(1, SudokuUtils.EDGE_SIZE+1).boxed().collect(Collectors.toList());
+            // ith box
+            for(int j = 0; j < SudokuUtils.EDGE_SIZE; j++) {
+                n = board.get(i - i%SudokuUtils.BOX_SIZE + j/SudokuUtils.BOX_SIZE)
+                        .get(i%SudokuUtils.BOX_SIZE * SudokuUtils.BOX_SIZE+j%SudokuUtils.BOX_SIZE);
+                if (!numsAvailable.contains(n) || n == 0) {
+                    return false;
+                }
+                numsAvailable.remove(numsAvailable.indexOf(n));
+            }
+        }
         return true;
     }
 }

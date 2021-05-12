@@ -3,6 +3,7 @@ package com.minigame.sudoku;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,8 +15,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
@@ -30,11 +29,16 @@ class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private int clr_correctNumber;
     private int clr_cannotEdit;
 
+    private final int history_max_size = 20;
+    private List<Step> history = new ArrayList<>();
+
     public BoardAdapter(Context context, List<List<Integer>> gameboard) {
         super();
         this.layoutInflater = LayoutInflater.from(context);
         this.board = SudokuUtils.DeepCopyList(gameboard);
         this.cell_background = context.getDrawable(R.drawable.cell_background);
+
+        history.clear();
 
         // create nested list for viewholder
         boardViews = new ArrayList<List<ViewHolder>>();
@@ -59,6 +63,7 @@ class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     public void UpdateBoard(List<List<Integer>> newboard){
         board.clear();
         board = SudokuUtils.DeepCopyList(newboard);
+        history.clear();
         notifyDataSetChanged();
     }
 
@@ -71,6 +76,7 @@ class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             }
             board.add(l);
         }
+        history.clear();
         notifyDataSetChanged();
     }
 
@@ -85,24 +91,26 @@ class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         ViewHolder view = boardViews.get(selectedRow).get(selectedCol);
         if (!view.canUpdate) return;
         if (isNote){
-            if (whichNumber < 1 || whichNumber > SudokuUtils.EDGE_SIZE){
+            if (whichNumber < 1 || whichNumber > SudokuUtils.EDGE_SIZE || !view.selectedNumber.getText().equals("")){
                 return;
             }
+            AddToHistory(view);
             view.SetNumber(0);
-            float alpha = ((int) view.hints[whichNumber- 1].getAlpha()) ^ 1;
-            view.hints[whichNumber- 1].setAlpha(alpha);
+            float alpha = ((int) view.candidates[whichNumber- 1].getAlpha()) ^ 1;
+            view.candidates[whichNumber- 1].setAlpha(alpha);
             // Log.d("fill_number", "set text for note");
         }
         else {
+            AddToHistory(view);
             for(int i = 0; i < SudokuUtils.EDGE_SIZE; i++){
-                view.hints[i].setAlpha(0);
+                view.candidates[i].setAlpha(0);
             }
             view.SetNumber(whichNumber);
         }
         if (!SudokuUtils.ValidEntry(board, selectedRow, selectedCol, whichNumber)){
             view.selectedNumber.setTextColor(clr_incorrectNumber);
         }
-        else{
+        else {
             view.selectedNumber.setTextColor(clr_correctNumber);
         }
     }
@@ -114,66 +122,56 @@ class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         ViewHolder view = boardViews.get(selectedRow).get(selectedCol);
         if (!view.canUpdate) return;
 
+        AddToHistory(view);
         view.SetNumber(0);
         for(int i = 0; i < SudokuUtils.EDGE_SIZE; i++){
-            view.hints[i].setAlpha(0);
+            view.candidates[i].setAlpha(0);
         }
         board.get(selectedRow).set(selectedCol, 0);
     }
 
     public void SetHint(List<List<Integer>> solution){
-        ViewHolder vh = boardViews.get(selectedRow).get(selectedCol);
-        if (vh.canUpdate) {
-            vh.SetNumber(solution.get(selectedRow).get(selectedCol));
-            vh.selectedNumber.setTextColor(clr_correctNumber);
-            // TODO: Make hint more clear
+        ViewHolder view = boardViews.get(selectedRow).get(selectedCol);
+        AddToHistory(view);
+        if (view.canUpdate) {
+            view.SetNumber(solution.get(selectedRow).get(selectedCol));
+            view.selectedNumber.setTextColor(clr_cannotEdit);
+            view.canUpdate = false;
+            // TODO: Make hint more clear by animation?
         }
+    }
+
+    private void AddToHistory(ViewHolder view) {
+        history.add(new Step(selectedRow, selectedCol, view));
+        if (history.size() > history_max_size) {
+            history.remove(0);
+        }
+    }
+
+    public void Revert(){
+        if (history.size() <= 0) return;
+        selectedRow = selectedCol = -1;
+        Step lastStep = history.remove(history.size() - 1);
+        ViewHolder view = boardViews.get(lastStep.row).get(lastStep.col);
+
+        Log.d("revert", lastStep.toString());
+        view.selectedNumber.setText(lastStep.previousNum);
+        view.selectedNumber.setTextColor(lastStep.numColor);
+        for (int i = 0; i < SudokuUtils.EDGE_SIZE; i++) {
+            view.candidates[i].setAlpha(lastStep.previousHints.get(i));
+        }
+        view.shell.setBackgroundColor(Color.TRANSPARENT);
+        view.shell.setBackground(cell_background);
     }
 
     public boolean isFinished(List<List<Integer>> solution) {
+        for(int i = 0; i < SudokuUtils.EDGE_SIZE; i++) {
+            if (board.get(i).contains(0)) return false;
+        }
         return solution.equals(board);
     }
 
-    // no solution version
-    public boolean isFinished() {
-        List<Integer> numsAvailable;
-        int n = 0;
 
-        for(int i = 0; i < SudokuUtils.EDGE_SIZE; i++) {
-            numsAvailable = IntStream.range(1,  SudokuUtils.EDGE_SIZE+1).boxed().collect(Collectors.toList());
-
-            // ith row and jth column
-            for(int j = 0; j < SudokuUtils.EDGE_SIZE; j++) {
-                n = board.get(i).get(j);
-                if (!numsAvailable.contains(n) || n == 0) {
-                    return false;
-                }
-                numsAvailable.remove(numsAvailable.indexOf(n));
-            }
-
-            numsAvailable = IntStream.range(1, SudokuUtils.EDGE_SIZE+1).boxed().collect(Collectors.toList());
-            // jth row and ith column
-            for(int j = 0; j < SudokuUtils.EDGE_SIZE; j++) {
-                n = board.get(j).get(i);
-                if (!numsAvailable.contains(n) || n == 0) {
-                    return false;
-                }
-                numsAvailable.remove(numsAvailable.indexOf(n));
-            }
-
-            numsAvailable = IntStream.range(1, SudokuUtils.EDGE_SIZE+1).boxed().collect(Collectors.toList());
-            // ith box
-            for(int j = 0; j < SudokuUtils.EDGE_SIZE; j++) {
-                n = board.get(i - i%SudokuUtils.BOX_SIZE + j/SudokuUtils.BOX_SIZE)
-                         .get(i%SudokuUtils.BOX_SIZE * SudokuUtils.BOX_SIZE+j%SudokuUtils.BOX_SIZE);
-                if (!numsAvailable.contains(n) || n == 0) {
-                    return false;
-                }
-                numsAvailable.remove(numsAvailable.indexOf(n));
-            }
-        }
-        return true;
-    }
 
     private String GetBoardAsPrettyString(){
         String s = "";
@@ -192,6 +190,9 @@ class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         return s;
     }
 
+    final int[] candidates_id = new int[]{R.id.hint1, R.id.hint2, R.id.hint3, R.id.hint4, R.id.hint5,
+            R.id.hint6, R.id.hint7, R.id.hint8, R.id.hint9};
+
     public class ViewHolder extends RecyclerView.ViewHolder {
         // TextView hint1, hint2, hint3, hint4, hint5, hint6, hint7, hint8, hint9;
         ConstraintLayout shell;
@@ -199,16 +200,15 @@ class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         // TextView row, column;
         int row, column;
         boolean canUpdate = true;
-        TextView hints[];
+        TextView[] candidates;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             shell = itemView.findViewById(R.id.shell);
-            hints = new TextView[SudokuUtils.EDGE_SIZE];
-            int hints_id[] = new int[]{R.id.hint1, R.id.hint2, R.id.hint3, R.id.hint4, R.id.hint5,
-                    R.id.hint6, R.id.hint7, R.id.hint8, R.id.hint9};
+            candidates = new TextView[SudokuUtils.EDGE_SIZE];
+
             for(int i = 0; i < SudokuUtils.EDGE_SIZE; i++){
-                hints[i] = itemView.findViewById(hints_id[i]);
+                candidates[i] = itemView.findViewById(candidates_id[i]);
             }
             selectedNumber = itemView.findViewById(R.id.selectedNumber);
             selectedNumber.setOnClickListener(selectCellListener);
@@ -275,4 +275,27 @@ class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         board.get(pos/ SudokuUtils.EDGE_SIZE).set(pos% SudokuUtils.EDGE_SIZE, i);
     }
 
+}
+
+class Step {
+    public final int row, col;
+    public final String previousNum;
+    public final List<Float> previousHints;
+    public final int numColor;
+    public Step(int row, int col, BoardAdapter.ViewHolder vh) {
+        this.row = row;
+        this.col = col;
+        List<Float> visibleNotes = new ArrayList<>();
+        previousNum = vh.selectedNumber.getText().toString();
+        for (int i = 0; i < SudokuUtils.EDGE_SIZE; i++) {
+            visibleNotes.add(vh.candidates[i].getAlpha());
+        }
+        previousHints = visibleNotes;
+        numColor   = vh.selectedNumber.getCurrentTextColor();
+    }
+
+    @Override
+    public String toString() {
+        return "Row: " + row + "; Col: " + col + "; Previous Hint: " + previousNum + "; PreviousHints" + previousHints.toString();
+    }
 }

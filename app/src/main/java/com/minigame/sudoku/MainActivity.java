@@ -66,12 +66,19 @@ public class MainActivity extends AppCompatActivity {
         database = new DbHelper(this);
         Log.d("main", "database done");
 
-        board_tofill = SudokuUtils.GetEmptyBoard();
-        board_solution = SudokuUtils.GetEmptyBoard();
+        board_solution = database.LoadRandomBoard();
+        if (board_solution == null) {
+            board_solution = SudokuUtils.GetEmptyBoard();
+            board_tofill = SudokuUtils.GetEmptyBoard();
+            database.backgroundExecutor.submit(() ->database.AddDefaultBoards());
+        }
+        else {
+            board_tofill = generator.GenerateSolvableBoard(board_solution, SudokuUtils.LEVELS[1]);
+        }
 
         RecyclerView recyclerView = findViewById(R.id.rvGameBoard);
         recyclerView.setLayoutManager(new GridLayoutManager(this, SudokuUtils.EDGE_SIZE));
-        adapter = new BoardAdapter(this, null);
+        adapter = new BoardAdapter(this, board_tofill);
         recyclerView.setAdapter(adapter);
 
         numButtons = new Button[SudokuUtils.EDGE_SIZE];
@@ -120,7 +127,13 @@ public class MainActivity extends AppCompatActivity {
         demoAlgoSelector.setPositiveButton("OK", (dialog, which) -> {
             ListView listView = ((AlertDialog) dialog).getListView();
             String selectedItem = listView.getAdapter().getItem(listView.getCheckedItemPosition()).toString();
-            solver.Solve(selectedItem, null);
+            List<List<Integer>> solution = solver.Solve(selectedItem, adapter.GetBoard());
+            if (solution != null){
+                adapter.UpdateBoard(solution);
+            }
+            else {
+                Toast.makeText(getApplicationContext(), "No solution", Toast.LENGTH_SHORT).show();
+            }
         });
         demoAlgoSelector.setNegativeButton("Cancel", null);
 
@@ -228,8 +241,7 @@ public class MainActivity extends AppCompatActivity {
     private View.OnClickListener undoListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            // TODO: undo, need a queue to store operations
-            Toast.makeText(getApplicationContext(), "UNDO NOT IMPLEMENTED", Toast.LENGTH_SHORT).show();
+            adapter.Revert();
         }
     };
 
@@ -251,6 +263,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // TODO: onPause/onResume save state
+
+    // TODO: portrait-landscape views
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {

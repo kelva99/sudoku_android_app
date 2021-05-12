@@ -120,10 +120,10 @@ public class GameSolverCSP extends ABCGameSolver {
 
     public boolean SolveSudoku(List<List<Integer>> newboard) {
         // ac3
-        if (AC3(newboard) == null) return false;
+        board = SudokuUtils.DeepCopyList(newboard);
+        if (AC3(board) == null) return false;
 
         // backtracing
-        board = SudokuUtils.DeepCopyList(newboard);
         return SolveRecursive(false);
     }
 
